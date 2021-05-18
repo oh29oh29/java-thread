@@ -1,5 +1,71 @@
 # Java Thread
 
+멀티 쓰레딩은 CPU 를 최대한 활용하기 위해 애플리케이션의 두 개 이상의 부분을 동시에 실행할 수 있는 Java 기능이다.  
+이러한 애플리케이션의 각 부분을 쓰레드라고 하고 프로세스 내의 경량 프로세스이다.
+
+두가지 메커니즘을 사용하여 쓰레드를 만들 수 있다.
+1. Thread 클래스 상속
+2. Runnable 인터페이스 구현
+
+## Thread 클래스 상속을 통한 쓰레드 생성
+
+`java.lang.Thread` 클래스를 상속하는 클래스를 생성한다.  
+이 클래스는 Thread 클래스에서 사용할 수 있는 run() 메서드를 재정의한다.  
+쓰레드는 run() 메서드 내에서 수명을 시작한다.  
+새 클래스의 객체를 만들고 start() 메서드를 호출하여 쓰레드를 시작한다. start() 메서드는 Thread 객체에서 run() 메서드를 호출한다.  
+
+```java
+public class StudyThread extends Thread {
+    @Override
+    public void run() {
+        System.out.println("Thread " + Thread.currentThread().getId() + " is running");
+    }
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) {
+        for (int i = 0; i < 8; i++) {
+            StudyThread thread = new StudyThread();
+            thread.start();
+        }
+    }
+}
+```
+![thread 상속](images/IMG_thread_01.png)
+
+## Runnable 인터페이스 구현을 통한 쓰레드 생성
+
+`java.lang.Runnable` 인터페이스를 구현하고 run() 메서드를 재정의하는 새 클래스를 생성한다.  
+해당 클래스를 인스턴스화하고 이 객체에 대해 start() 메서드를 호출한다.  
+
+```java
+public class StudyThread implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("Thread " + Thread.currentThread().getId() + " is running");
+    }
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) {
+        for (int i = 0; i < 8; i++) {
+            Thread thread = new Thread(new StudyThread());
+            thread.start();
+        }
+    }
+}
+```
+![runnable 구현](images/IMG_thread_02.png)
+
+## Thread Class vs Runnable Interface
+
+1. Thread 클래스를 상속하면 Java 가 다중 상속을 지원하지 않으므로 다른 클래스를 상속할 수 없다.  
+그러나 Runnable 인터페이스를 구현하면 다른 클래스를 상속할 수 있다.  
+2. Runnable 인터페이스에서는 사용할 수 없는 yield(), interrupt() 등과 같은 내장 메서드를 사용할 수 없지만 Thread 클래스를 상속하면 이런 기본 기능을 사용할 수 있다.  
+3. Runnable 인터페이스를 구현하면 여러 쓰레드간에 공유할 수 있는 객체를 생성할 수 있다.
+
 <hr>
 
 #### References
