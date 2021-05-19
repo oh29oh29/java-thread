@@ -68,14 +68,106 @@ public class Main {
 
 ## Lifecycle and States
 
-1. New
-2. Runnable
-3. Blocked
-4. Waiting
-5. Timed Waiting
-6. Terminated
-
 ![lifecycle](images/IMG_lifecycle_01.png)
+
+#### New
+
+생성되었지만 아직 시작되지 않은 쓰레드이다.  
+start() 메서드를 사용하여 시작할때까지 이 상태를 유지한다.  
+
+```java
+public class StudyThread implements Runnable {
+    @Override
+    public void run() {}
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) {
+        Thread thread = new Thread(new StudyThread());
+        System.out.println(thread.getState());
+    }
+}
+```
+```text
+NEW
+```
+
+#### Runnable
+
+새로운 쓰레드를 생성하고 이 쓰레드에 대해 start() 메서드를 호출하면 New 상태에서 Runnable 상태로 넘어간다.  
+이 상태의 쓰레드는 실행중이거나 실행할 준비가 되어있고 시스템에서 리소스 할당을 기다리고 있는 상태를 의미한다.
+
+멀티쓰레드 환경에서 쓰레드 스케쥴러(JVM 의 일부)는 각 쓰레드에 고정된 시간을 할당한다.  
+특정 시간동안 실행된 다음 제어를 다른 Runnable 상태의 쓰레드에 양도한다.  
+
+```java
+public class StudyThread implements Runnable {
+    @Override
+    public void run() {}
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) {
+        Thread thread = new Thread(new StudyThread());
+        thread.start();
+        System.out.println(thread.getState());
+    }
+}
+```
+```text
+RUNNABLE
+```
+
+하지만 위 예제에서 쓰레드의 상태가 항상 'RUNNABLE' 이라는것을 보장할 순 없다.  
+쓰레드 스케쥴러에 의해 해당 쓰레드가 즉시 실행되어 'RUNNABLE' 상태를 출력하기 전에 실행이 끝날 수 있다.  
+이러한 경우 다른 상태가 출력된다.
+
+#### Blocked
+
+현재 실행할 수 없는 쓰레드의 상태이다.  
+Blocked 상태에 대해 이해하려면 우선 Synchronized 에 대한 이해가 필요하다.  
+
+멀티쓰레드 환경에서 두 개 이상의 쓰레드가 변경 가능한 공유 데이터를 동시에 업데이트하려고 하면 경쟁 조건이 발생한다.  
+Java 는 공유 데이터에 대한 쓰레드 엑세스를 동기화하여 경합 상태를 방지하는 메커니즘을 제공한다.  
+
+Synchronized 로 표시된 로직은 동기화된 블럭이 되어 한 번에 하나의 쓰레드만 접근하여 실행할 수 있다.  
+Synchronized 블럭을 수행할 때 Java 는 내부적으로 monitor lock 또는 intrinsic lock 이라고 하는 monitor 를 사용하여 동기화를 제공한다.  
+
+모든 객체는 반드시 하나의 monitor 를 가진다. 동일한 객체의 모든 Synchronized 블럭은 동일한 시간에 하나의 쓰레드만 실행할 수 있다.  
+
+```java
+public class StudyThread implements Runnable {
+    @Override
+    public void run() {
+        commonResource();
+    }
+
+    public static synchronized void commonResource() {
+        while (true) {}
+    }
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Thread thread1 = new Thread(new StudyThread());
+        Thread thread2 = new Thread(new StudyThread());
+        thread1.start();
+        thread2.start();
+
+        Thread.sleep(1000);
+
+        System.out.println(thread2.getState());
+        System.exit(0);
+    }
+}
+```
+```text
+BLOCKED
+```
+
 
 <hr>
 
@@ -95,4 +187,5 @@ public class Main {
 > - [baeldung | How to Start a Thread in Java](https://www.baeldung.com/java-start-thread)
 > - [baeldung | Runnable vs. Callable in Java](https://www.baeldung.com/java-runnable-callable)
 > - [baeldung | Implementing a Runnable vs Extending a Thread](https://www.baeldung.com/java-runnable-vs-extending-thread)
+> - [baeldung | Guide to the Synchronized Keyword in Java](https://www.baeldung.com/java-synchronized)
 > - [ducmanhphan | How to use CompletableFuture and Callable in Java](https://ducmanhphan.github.io/2020-02-10-How-to-use-CompletableFuture-Callable-in-Java/)
