@@ -66,6 +66,17 @@ public class Main {
 2. Runnable 인터페이스에서는 사용할 수 없는 yield(), interrupt() 등과 같은 내장 메서드를 사용할 수 없지만 Thread 클래스를 상속하면 이런 기본 기능을 사용할 수 있다.  
 3. Runnable 인터페이스를 구현하면 여러 쓰레드간에 공유할 수 있는 객체를 생성할 수 있다.
 
+## Lifecycle and States
+
+1. New
+2. Runnable
+3. Blocked
+4. Waiting
+5. Timed Waiting
+6. Terminated
+
+![lifecycle](images/IMG_lifecycle_01.png)
+
 <hr>
 
 #### References
