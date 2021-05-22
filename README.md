@@ -197,6 +197,126 @@ Java 문서에 따르면 모든 쓰레드는 다음 세가지 메서드 중 하�
 2. thread.join()
 3. LockSupport.park()
 
+```java
+public class StudyAThread implements Runnable {
+
+    @Override
+    public void run() {
+        Thread threadB = new Thread(new StudyBThread());
+        threadB.setName("B");
+        threadB.start();
+
+        try {
+            threadB.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+```java
+public class StudyBThread implements Runnable {
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Thread threadA = Thread.getAllStackTraces()
+                .keySet()
+                .stream()
+                .filter(it -> it.getName().equals("A"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("A thread 가 존재하지 않습니다."));
+
+        System.out.println("threadA state: " + threadA.getState());
+    }
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) {
+        Thread threadA = new Thread(new StudyAThread());
+        threadA.setName("A");
+        threadA.start();
+    }
+}
+```
+```text
+threadA state: WAITING
+```
+
+#### Timed Waiting
+
+지정된 시간 내에 다른 쓰레드가 특정 작업을 수행할 때까지 대기할 때 TIMED_WAITING 상태가 된다.
+Java 문서에 따르면 쓰레드를 TIMED_WAITING 상태에 두는 다섯가지 방법이 있다고 한다.
+
+1. thread.sleep(long millis)
+2. wait(int timeout) or wait(int timeout, int nanos)
+3. thread.join(long millis)
+4. LockSupport.parkNanos
+5. LockSupport.parkUntil
+
+```java
+public class StudyThread implements Runnable {
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Thread threadA = new Thread(new StudyThread());
+        threadA.setName("A");
+        threadA.start();
+
+        Thread.sleep(1000);
+        System.out.println(threadA.getState());
+    }
+}
+```
+```text
+TIMED_WAITING
+```
+
+#### Terminated
+
+실행이 완료되었거나 비정상적으로 종료된 경우 TERMINATED 상태가 된다.  
+
+```java
+public class StudyAThread implements Runnable {
+
+    @Override
+    public void run() {
+        // No processing in this block
+    }
+}
+```
+```java
+public class Main {
+    public static void main(String[] args) throws InterruptedException {
+        Thread threadA = new Thread(new StudyAThread());
+        threadA.setName("A");
+        threadA.start();
+
+        Thread.sleep(1000);
+        System.out.println(threadA.getState());
+    }
+}
+```
+```text
+TERMINATED
+```
 <hr>
 
 #### References
