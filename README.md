@@ -317,6 +317,25 @@ public class Main {
 ```text
 TERMINATED
 ```
+
+## Priority
+
+멀티쓰레딩 환경에서 쓰레드 스케줄러는 쓰레드 우선 순위에 따라 쓰레드에 프로세서를 할당한다.  
+쓰레드를 만들 때마다 항상 우선순위가 할당된다.  
+우선순위는 쓰레드를 생성하는 동안 JVM 에 의해 제공되거나 프로그래머가 명시적으로 제공할 수 있다.
+
+쓰레드에 대해 허용되는 우선순위 값은 1 에서 10 까지이다.  
+우선순위를 위해 Thread 클래스에 정의된 세개의 정적 변수가 있다.  
+
+public static int MIN_PRIORITY
+- 쓰레드가 가질수 있는 최소 우선순위 1 이다.
+
+public static int NORM_PRIORITY
+- 명시적으로 정의하지 않은 경우 쓰레드의 기본 우선순위 5 이다.
+
+public static int MAX_PRIORITY
+- 쓰레드의 최대 우선순위 10 이다.
+
 <hr>
 
 #### References
@@ -330,6 +349,7 @@ TERMINATED
 > - [geeksforgeeks | Java.lang.Thread class in Java](https://www.geeksforgeeks.org/java-lang-thread-class-java/)
 > - [geeksforgeeks | Runnable interface in Java](https://www.geeksforgeeks.org/runnable-interface-in-java/)
 > - [geeksforgeeks | Implement Runnable vs Extend Thread in Java](https://www.geeksforgeeks.org/implement-runnable-vs-extend-thread-in-java/)
+> - [geeksforgeeks | Java Thread Priority in Multithreading](https://www.geeksforgeeks.org/java-thread-priority-multithreading/)
 > - [baeldung | Java Concurrency](https://www.baeldung.com/java-concurrency)
 > - [baeldung | Life Cycle of a Thread in Java](https://www.baeldung.com/java-thread-lifecycle)
 > - [baeldung | How to Start a Thread in Java](https://www.baeldung.com/java-start-thread)
