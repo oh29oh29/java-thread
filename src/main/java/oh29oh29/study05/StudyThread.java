@@ -1,12 +1,15 @@
 package oh29oh29.study05;
 
 public class StudyThread implements Runnable {
-    @Override
-    public void run() {
-        commonResource();
+
+    private final Worker worker;
+
+    public StudyThread(Worker worker) {
+        this.worker = worker;
     }
 
-    public static synchronized void commonResource() {
-        while (true) {}
+    @Override
+    public void run() {
+        worker.work();
     }
 }

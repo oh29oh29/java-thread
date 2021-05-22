@@ -138,36 +138,64 @@ Synchronized 블럭을 수행할 때 Java 는 내부적으로 monitor lock 또�
 모든 객체는 반드시 하나의 monitor 를 가진다. 동일한 객체의 모든 Synchronized 블럭은 동일한 시간에 하나의 쓰레드만 실행할 수 있다.  
 
 ```java
+public class Worker {
+    public synchronized void work() {
+        Thread.getAllStackTraces()
+                .keySet()
+                .stream()
+                .filter(it -> it.getName().equals("A") || it.getName().equals("B"))
+                .forEach(it -> {
+                    if (Thread.currentThread().getId() == it.getId()) {
+                        System.out.println("Current Thread: " + it.getName() + ", state: " + it.getState());
+                    } else {
+                        System.out.println("Other Thread: " + it.getName() + ", state: " + it.getState());
+                    }
+                });
+    }
+}
+```
+```java
 public class StudyThread implements Runnable {
-    @Override
-    public void run() {
-        commonResource();
+
+    private final Worker worker;
+
+    public StudyThread(Worker worker) {
+        this.worker = worker;
     }
 
-    public static synchronized void commonResource() {
-        while (true) {}
+    @Override
+    public void run() {
+        worker.work();
     }
 }
 ```
 ```java
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
-        Thread thread1 = new Thread(new StudyThread());
-        Thread thread2 = new Thread(new StudyThread());
+    public static void main(String[] args) {
+        Worker worker = new Worker();
+        Thread thread1 = new Thread(new StudyThread(worker));
+        Thread thread2 = new Thread(new StudyThread(worker));
+        thread1.setName("A");
+        thread2.setName("B");
         thread1.start();
         thread2.start();
-
-        Thread.sleep(1000);
-
-        System.out.println(thread2.getState());
-        System.exit(0);
     }
 }
 ```
 ```text
-BLOCKED
+Current Thread: A, state: RUNNABLE
+Other Thread: B, state: BLOCKED
+Current Thread: B, state: RUNNABLE
 ```
 
+#### Waiting
+
+쓰레드는 다른 쓰레드가 특정 작업을 수행하기를 기다릴때 'WAITING' 상태가 된다.  
+Java 문서에 따르면 모든 쓰레드는 다음 세가지 메서드 중 하나를 호출하면 이 상태로 들어갈 수 있다고 한다.  
+
+1. object.wait()
+2. thread.join()
+3. LockSupport.park()
 
 <hr>
 
