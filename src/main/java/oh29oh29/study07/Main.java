@@ -5,8 +5,7 @@ package oh29oh29.study07;
  * */
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        Thread threadA = new Thread(new StudyThread());
-        threadA.setName("A");
+        Thread threadA = new Thread(new StudyThread(), "A");
         threadA.start();
 
         Thread.sleep(1000);

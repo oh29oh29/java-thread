@@ -130,7 +130,7 @@ RUNNABLE
 Blocked 상태에 대해 이해하려면 우선 Synchronized 에 대한 이해가 필요하다.  
 
 멀티쓰레드 환경에서 두 개 이상의 쓰레드가 변경 가능한 공유 데이터를 동시에 업데이트하려고 하면 경쟁 조건이 발생한다.  
-Java 는 공유 데이터에 대한 쓰레드 엑세스를 동기화하여 경합 상태를 방지하는 메커니즘을 제공한다.  
+Java 는 공유 데이터에 대한 쓰레드 접근을 동기화하여 경합 상태를 방지하는 메커니즘을 제공한다.  
 
 Synchronized 로 표시된 로직은 동기화된 블럭이 되어 한 번에 하나의 쓰레드만 접근하여 실행할 수 있다.  
 Synchronized 블럭을 수행할 때 Java 는 내부적으로 monitor lock 또는 intrinsic lock 이라고 하는 monitor 를 사용하여 동기화를 제공한다.  
@@ -173,10 +173,8 @@ public class StudyThread implements Runnable {
 public class Main {
     public static void main(String[] args) {
         Worker worker = new Worker();
-        Thread thread1 = new Thread(new StudyThread(worker));
-        Thread thread2 = new Thread(new StudyThread(worker));
-        thread1.setName("A");
-        thread2.setName("B");
+        Thread thread1 = new Thread(new StudyThread(worker), "A");
+        Thread thread2 = new Thread(new StudyThread(worker), "B");
         thread1.start();
         thread2.start();
     }
@@ -202,8 +200,7 @@ public class StudyAThread implements Runnable {
 
     @Override
     public void run() {
-        Thread threadB = new Thread(new StudyBThread());
-        threadB.setName("B");
+        Thread threadB = new Thread(new StudyBThread(), "B");
         threadB.start();
 
         try {
@@ -239,8 +236,7 @@ public class StudyBThread implements Runnable {
 ```java
 public class Main {
     public static void main(String[] args) {
-        Thread threadA = new Thread(new StudyAThread());
-        threadA.setName("A");
+        Thread threadA = new Thread(new StudyAThread(), "A");
         threadA.start();
     }
 }
@@ -276,8 +272,7 @@ public class StudyThread implements Runnable {
 ```java
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        Thread threadA = new Thread(new StudyThread());
-        threadA.setName("A");
+        Thread threadA = new Thread(new StudyThread(), "A");
         threadA.start();
 
         Thread.sleep(1000);
@@ -305,8 +300,7 @@ public class StudyAThread implements Runnable {
 ```java
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        Thread threadA = new Thread(new StudyAThread());
-        threadA.setName("A");
+        Thread threadA = new Thread(new StudyAThread(), "A");
         threadA.start();
 
         Thread.sleep(1000);
@@ -336,6 +330,97 @@ public static int NORM_PRIORITY
 public static int MAX_PRIORITY
 - 쓰레드의 최대 우선순위 10 이다.
 
+## Main 쓰레드
+
+Java 애플리케이션이 시작되면 하나의 쓰레드가 즉시 실행된다.  
+이것은 애플리케이션이 시작될 때 실행되는 쓰레드이기 때문에 일반적으로 애플리케이션의 메인 쓰레드라고 한다.
+
+![메인쓰레드](images/IMG_mainthread_01.png)
+
+#### How to control Main thread
+
+메인 쓰레드는 애플리케이션이 시작될 때 자동으로 생성된다.  
+메인 쓰레드를 제어하려면 우리는 메인 쓰레드에 대한 참조를 얻어야한다.  
+Thread 클래스에 있는 currentThread() 메서드를 사용하여 호출된 쓰레드에 대한 참조를 얻을 수 있다.  
+메인 쓰레드의 기본 우선순위는 5 이며 나머지 모든 사용자 쓰레드의 우선순위는 부모에서 자식으로 상속된다.  
+
+#### main() 메서드와 메인 쓰레드간의 관계
+
+각 애플리케이션의 메인 쓰레드는 JVM 에 의해 생성된다.  
+메인 쓰레드는 먼저 main() 메서드의 존재를 확인한 다음 클래스를 초기화한다.  
+
+## Synchronization
+
+멀티 쓰레드 애플리케이션은 종종 여러 쓰레드가 동일한 리소스에 접근하려고 시도하고 결국 오류 및 예기치 않은 상황이 발생할 수 있다.  
+따라서 특정 시점에 하나의 쓰레드만 리소스에 접근할 수 있도록 동기화 방법을 사용하기도 한다.  
+
+Java 는 동기화된 블럭을 사용하여 쓰레드를 생성하고 작업을 동기화하는 방법을 제공한다.  
+synchronized 키워드로 동기화된 블럭을 만들 수 있다.  
+동일한 객체에서 동기화된 모든 블럭은 한 번에 하나의 쓰레드만 실행할 수 있다.  
+동기화된 블럭에 접근하려는 다른 모든 쓰레드는 이미 접근중인 쓰레드가 수행이 종료될때까지 차단된다.  
+
+#### synchronized 키워드
+
+synchronized 키워드는 세 가지의 경우에 쓰일 수 있다.
+1. Instance methods
+2. Static methods
+3. Code blocks
+
+#### Synchronized Instance Methods
+
+메서드 선언에 synchronized 키워드를 추가하기만하면 메서드가 동기화된다.
+인스턴스 메서드는 메서드를 소유한 클래스의 인스턴스를 통해 동기화된다. 즉, 클래스의 인스턴스 당 하나의 쓰레드만이 메서드를 실행할 수 있다.  
+
+```java
+public synchronized void synchronisedCalculate() {
+        // do something
+}
+```
+
+#### Synchronized Static Methods
+
+static 메서드는 인스턴스 메서드와 마찬가지로 동기화된다.  
+이러한 메서드는 인스턴스 수에 관계없이 클래스 당 static synchronized 메서드 내에서 하나의 쓰레드만 실행할 수 있다.
+
+```java
+public static synchronized void syncStaticCalculate() {
+    // do something
+}
+```
+
+#### Synchronized Blocks Within Methods
+
+때로는 전체 메서드를 동기화하지 않고 그 안에 있는 일부 명령문만 동기화를 할 수도 있다.  
+이는 synchronized 를 블럭 내부에 적용하여 수행할 수 있다.  
+
+```java
+public void performSynchronisedTask() {
+    synchronized (this) {
+        setCount(getCount()+1);
+    }
+}
+```
+
+`this` 매개 변수를 동기화 된 블록에 전달한다.  `this` 는 모니터 객체이며 블럭 내부의 코드는 모니터 객체에서 동기화된다.  
+간단히 말해, 모니터 객체 당 하나의 쓰레드만 해당 코드 블럭 내에서 실행할 수 있다.
+
+## Deadlock
+
+데드락이란 두 개 이상의 쓰레드가 다른 쓰레드가 보유한 잠금 또는 자원에 접근하려고 영원히 대기할 때 발생한다.  
+결과적으로 데드락에 빠진 쓰레드는 수행될 수 없기 때문에 애플리케이션이 중단될 수 있다.  
+
+'식사하는 철학자들 문제' 는 멀티 쓰레드 환경에서 동기화 문제를 잘 보여주며 데드락의 예로 자주 사용된다.  
+
+#### Avoiding Deadlock
+
+데드락은 Java 에서 일반적인 동시성 문제이다.  
+따라서 잠재적인 데드락을 피하기 위해 Java 애플리케이션을 설계해야한다.  
+
+먼저 쓰레드에 대해 여러 잠금을 획득할 필요가 없다.  
+쓰레드가 다중 잠금을 필요로 하는 경우에는 잠금 획득에서 순환 종속성을 피하기 위해 각 쓰레드가 동일한 순서로 잠금을 획득하는지 확인해야한다.  
+
+Lock 인터페이스의 tryLock() 메서드와 같은 시간 제한 잠금 시도를 사용하여 잠금을 획득할 수 없는 경우 쓰레드가 무한히 block 되지 않도록 할 수 있다.
+
 <hr>
 
 #### References
@@ -350,10 +435,13 @@ public static int MAX_PRIORITY
 > - [geeksforgeeks | Runnable interface in Java](https://www.geeksforgeeks.org/runnable-interface-in-java/)
 > - [geeksforgeeks | Implement Runnable vs Extend Thread in Java](https://www.geeksforgeeks.org/implement-runnable-vs-extend-thread-in-java/)
 > - [geeksforgeeks | Java Thread Priority in Multithreading](https://www.geeksforgeeks.org/java-thread-priority-multithreading/)
+> - [geeksforgeeks | Synchronized in Java](https://www.geeksforgeeks.org/synchronized-in-java/)
 > - [baeldung | Java Concurrency](https://www.baeldung.com/java-concurrency)
 > - [baeldung | Life Cycle of a Thread in Java](https://www.baeldung.com/java-thread-lifecycle)
 > - [baeldung | How to Start a Thread in Java](https://www.baeldung.com/java-start-thread)
 > - [baeldung | Runnable vs. Callable in Java](https://www.baeldung.com/java-runnable-callable)
 > - [baeldung | Implementing a Runnable vs Extending a Thread](https://www.baeldung.com/java-runnable-vs-extending-thread)
 > - [baeldung | Guide to the Synchronized Keyword in Java](https://www.baeldung.com/java-synchronized)
+> - [baeldung | Testing Multi-Threaded Code in Java](https://www.baeldung.com/java-testing-multithreaded)
+> - [baeldung | Java Thread Deadlock and Livelock](https://www.baeldung.com/java-deadlock-livelock)
 > - [ducmanhphan | How to use CompletableFuture and Callable in Java](https://ducmanhphan.github.io/2020-02-10-How-to-use-CompletableFuture-Callable-in-Java/)

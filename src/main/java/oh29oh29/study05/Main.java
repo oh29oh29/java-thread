@@ -6,10 +6,8 @@ package oh29oh29.study05;
 public class Main {
     public static void main(String[] args) {
         Worker worker = new Worker();
-        Thread thread1 = new Thread(new StudyThread(worker));
-        Thread thread2 = new Thread(new StudyThread(worker));
-        thread1.setName("A");
-        thread2.setName("B");
+        Thread thread1 = new Thread(new StudyThread(worker), "A");
+        Thread thread2 = new Thread(new StudyThread(worker), "B");
         thread1.start();
         thread2.start();
     }

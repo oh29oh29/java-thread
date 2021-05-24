@@ -4,8 +4,7 @@ public class StudyAThread implements Runnable {
 
     @Override
     public void run() {
-        Thread threadB = new Thread(new StudyBThread());
-        threadB.setName("B");
+        Thread threadB = new Thread(new StudyBThread(), "B");
         threadB.start();
 
         try {
